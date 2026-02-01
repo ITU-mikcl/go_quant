@@ -21,13 +21,14 @@ func main() {
 		BaseURL:   "https://data.alpaca.markets",
 	})
 
-	symbol := "AAPL"
+	symbol := "GOOGL"
 	latestTradingDay := getLatestTradingDay()
 
 	request := marketdata.GetBarsRequest{
-		TimeFrame: marketdata.OneDay,
-		Start:     latestTradingDay.AddDate(-5, 0, 0),
-		End:       latestTradingDay,
+		TimeFrame:  marketdata.OneDay,
+		Start:      latestTradingDay.AddDate(-10, 0, 0),
+		End:        latestTradingDay,
+		Adjustment: marketdata.Split,
 	}
 
 	bars, err := client.GetBars(symbol, request)
