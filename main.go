@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"os"
 	"time"
 
@@ -24,6 +25,9 @@ func main() {
 	symbol := "GOOGL"
 	latestTradingDay := getLatestTradingDay()
 
+	annualRiskFreeRate := 0.04                    // 4% annual risk-free rate
+	dailyRiskFreeRate := annualRiskFreeRate / 252 // Approximate trading days in a year
+
 	request := marketdata.GetBarsRequest{
 		TimeFrame:  marketdata.OneDay,
 		Start:      latestTradingDay.AddDate(-10, 0, 0),
@@ -40,10 +44,32 @@ func main() {
 	endPrice := bars[len(bars)-1].Close
 	totalReturn := ((endPrice - startPrice) / startPrice) * 100
 
+	var dailyReturns []float64
+	var sumExcessReturns float64
+
+	for i := 1; i < len(bars); i++ {
+		dailyReturn := (bars[i].Close - bars[i-1].Close) / bars[i-1].Close
+		excessReturn := dailyReturn - dailyRiskFreeRate
+		dailyReturns = append(dailyReturns, excessReturn)
+		sumExcessReturns += excessReturn
+	}
+
+	meanExcessReturn := sumExcessReturns / float64(len(dailyReturns))
+
+	var varianceSum float64
+	for _, stockReturn := range dailyReturns {
+		diff := stockReturn - meanExcessReturn
+		varianceSum += diff * diff
+	}
+
+	dailyStandardDeviation := math.Sqrt(varianceSum / float64(len(dailyReturns)-1))
+	sharpeRatio := (meanExcessReturn / dailyStandardDeviation) * math.Sqrt(252)
+
 	fmt.Printf("Ticker:           %s\n", symbol)
 	fmt.Printf("Start Date:       %s (Price: $%.2f)\n", bars[0].Timestamp.Format("2006-01-02"), startPrice)
 	fmt.Printf("End Date:         %s (Price: $%.2f)\n", bars[len(bars)-1].Timestamp.Format("2006-01-02"), endPrice)
 	fmt.Printf("Total Return:     %.2f%%\n", totalReturn)
+	fmt.Printf("Sharpe Ratio: 	  %.4f\n", sharpeRatio)
 }
 
 // getLatestTradingDay returns today if it's a weekday, or the last Friday if today is a weekend
