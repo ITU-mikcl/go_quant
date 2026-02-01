@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/alpacahq/alpaca-trade-api-go/v3/marketdata"
@@ -22,7 +23,12 @@ func main() {
 		BaseURL:   "https://data.alpaca.markets",
 	})
 
-	symbol := "GOOGL"
+	if len(os.Args) < 2 {
+		fmt.Println("Please provide a stock ticker symbol as a command-line argument.")
+		return
+	}
+
+	symbol := strings.ToUpper(os.Args[1])
 	latestTradingDay := getLatestTradingDay()
 
 	annualRiskFreeRate := 0.04                    // 4% annual risk-free rate
