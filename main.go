@@ -21,21 +21,28 @@ func main() {
 		BaseURL:   "https://data.alpaca.markets",
 	})
 
+	symbol := "AAPL"
 	latestTradingDay := getLatestTradingDay()
 
 	request := marketdata.GetBarsRequest{
 		TimeFrame: marketdata.OneDay,
-		Start:     latestTradingDay.AddDate(-10, 0, 0),
+		Start:     latestTradingDay.AddDate(-5, 0, 0),
 		End:       latestTradingDay,
 	}
 
-	bars, err := client.GetBars("GOOGL", request)
+	bars, err := client.GetBars(symbol, request)
 	if err != nil {
 		panic(err)
 	}
-	for _, bar := range bars {
-		fmt.Printf("%+v\n", bar)
-	}
+
+	startPrice := bars[0].Close
+	endPrice := bars[len(bars)-1].Close
+	totalReturn := ((endPrice - startPrice) / startPrice) * 100
+
+	fmt.Printf("Ticker:           %s\n", symbol)
+	fmt.Printf("Start Date:       %s (Price: $%.2f)\n", bars[0].Timestamp.Format("2006-01-02"), startPrice)
+	fmt.Printf("End Date:         %s (Price: $%.2f)\n", bars[len(bars)-1].Timestamp.Format("2006-01-02"), endPrice)
+	fmt.Printf("Total Return:     %.2f%%\n", totalReturn)
 }
 
 // getLatestTradingDay returns today if it's a weekday, or the last Friday if today is a weekend
