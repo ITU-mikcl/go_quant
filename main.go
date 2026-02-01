@@ -28,7 +28,7 @@ func main() {
 		TimeFrame:  marketdata.OneDay,
 		Start:      latestTradingDay.AddDate(-10, 0, 0),
 		End:        latestTradingDay,
-		Adjustment: marketdata.Split,
+		Adjustment: marketdata.All,
 	}
 
 	bars, err := client.GetBars(symbol, request)
