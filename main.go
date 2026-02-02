@@ -36,9 +36,10 @@ func main() {
 
 	request := marketdata.GetBarsRequest{
 		TimeFrame:  marketdata.OneDay,
-		Start:      latestTradingDay.AddDate(-10, 0, 0),
+		Start:      latestTradingDay.AddDate(-5, 0, 0),
 		End:        latestTradingDay,
 		Adjustment: marketdata.All,
+		Feed:       marketdata.IEX,
 	}
 
 	bars, err := client.GetBars(symbol, request)
